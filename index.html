@@ -251,7 +251,7 @@
                 statusText.textContent = 'جاري معالجة طلبك...';
                 
                 try {
-                    // استخدام API الذي قدمته
+                    // استخدام API الجديد
                     const apiUrl = `https://asta-hosting.x10.mx/vo.php?2=${encodeURIComponent(message)}`;
                     
                     // محاولة جلب البيانات من API
@@ -261,11 +261,11 @@
                         throw new Error('لم يتمكن الخادم من معالجة الطلب');
                     }
                     
-                    // الحصول على رابط الصوت من الاستجابة
-                    const audioUrl = await response.text();
+                    // الحصول على بيانات JSON من الاستجابة
+                    const responseData = await response.json();
                     
-                    // إذا كان الرابط يحتوي على نص خطأ
-                    if (audioUrl.includes("error") || audioUrl.trim() === "") {
+                    // التحقق من وجود رابط الصوت في الاستجابة
+                    if (!responseData.url) {
                         throw new Error('لم يتم إنشاء رد صوتي');
                     }
                     
@@ -273,7 +273,7 @@
                     statusText.textContent = 'جاري تشغيل الرد الصوتي...';
                     
                     // تشغيل الصوت
-                    playAudio(audioUrl.trim());
+                    playAudio(responseData.url);
                     
                 } catch (error) {
                     console.error('Error:', error);
