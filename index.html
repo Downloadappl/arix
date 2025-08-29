@@ -116,6 +116,18 @@
             transform: scale(1.05);
         }
         
+        .category-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
         /* نافذة الصورة المنبثقة */
         .modal {
             display: none;
@@ -312,6 +324,13 @@
                 grid-template-columns: repeat(4, 1fr);
             }
         }
+        
+        /* رسائل الخطأ */
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #e74c3c;
+        }
     </style>
 </head>
 <body>
@@ -333,23 +352,26 @@
         <!-- صفحة الرئيسية -->
         <div class="page active" id="homePage">
             <div class="categories">
-                <button class="category-btn active">الكل</button>
-                <button class="category-btn">القرآن</button>
-                <button class="category-btn">الحديث</button>
-                <button class="category-btn">مساجد</button>
-                <button class="category-btn">أدعية</button>
+                <button class="category-btn active" data-category="all">الكل</button>
+                <button class="category-btn" data-category="masajid">مساجد</button>
+                <button class="category-btn" data-category="patterns">زخارف</button>
+                <button class="category-btn" data-category="various">منوع</button>
+                <button class="category-btn" data-category="events">مناسبات</button>
+                <button class="category-btn" data-category="nature">طبيعة</button>
             </div>
             
             <div class="gallery" id="imageGallery">
-                <!-- سيتم إضافة الصور هنا عبر JavaScript -->
+                <div class="loading">
+                    <div class="spinner"></div>
+                </div>
             </div>
         </div>
         
         <!-- صفحة الأقسام -->
         <div class="page" id="categoriesPage">
             <h2 style="margin: 20px 0; text-align: center;">الأقسام</h2>
-            <div class="gallery">
-                <!-- محتوى الأقسام -->
+            <div class="gallery" id="categoriesGallery">
+                <!-- سيتم تحميل الأقسام هنا -->
             </div>
         </div>
         
@@ -357,7 +379,7 @@
         <div class="page" id="favoritesPage">
             <h2 style="margin: 20px 0; text-align: center;">المفضلة</h2>
             <div class="gallery" id="favoritesGallery">
-                <!-- المحتوى المفضل -->
+                <div class="error-message">لم تقم بإضافة أي صور إلى المفضلة بعد</div>
             </div>
         </div>
     </div>
@@ -376,6 +398,9 @@
             </button>
             <button class="modal-btn" id="downloadImage">
                 <i class="fas fa-download"></i> تحميل
+            </button>
+            <button class="modal-btn" id="addToFavorites">
+                <i class="fas fa-heart"></i> المفضلة
             </button>
         </div>
     </div>
@@ -404,53 +429,130 @@
         document.addEventListener('DOMContentLoaded', function() {
             // عناصر DOM
             const gallery = document.getElementById('imageGallery');
+            const categoriesGallery = document.getElementById('categoriesGallery');
+            const favoritesGallery = document.getElementById('favoritesGallery');
             const modal = document.getElementById('imageModal');
             const modalImage = document.getElementById('modalImage');
             const modalClose = document.getElementById('modalClose');
             const setWallpaperBtn = document.getElementById('setWallpaper');
             const downloadBtn = document.getElementById('downloadImage');
+            const addToFavoritesBtn = document.getElementById('addToFavorites');
             const navItems = document.querySelectorAll('.nav-item');
             const pages = document.querySelectorAll('.page');
             const searchBtn = document.getElementById('searchBtn');
             const searchContainer = document.getElementById('searchContainer');
             const searchInput = document.getElementById('searchInput');
+            const categoryButtons = document.querySelectorAll('.category-btn');
             
-            // محاكاة بيانات الصور من API
-            const imageUrls = [
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=1',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=2',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=3',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=4',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=5',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=6',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=7',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=8',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=9',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=10',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=11',
-                'https://asta-hosting.x10.mx/Islam.php?all=1&img=12'
-            ];
+            // متغيرات التطبيق
+            let currentImages = {};
+            let favorites = JSON.parse(localStorage.getItem('favorites')) || {};
+            let currentModalImage = null;
             
-            // تحميل الصور في المعرض
-            function loadImages() {
+            // تحميل الصور من API
+            async function loadImages() {
+                try {
+                    gallery.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+                    
+                    const response = await fetch('https://asta-hosting.x10.mx/Islam.php?all=1');
+                    
+                    if (!response.ok) {
+                        throw new Error('فشل في تحميل الصور من الخادم');
+                    }
+                    
+                    const data = await response.json();
+                    currentImages = data;
+                    
+                    displayImages(data);
+                    displayCategories(data);
+                } catch (error) {
+                    console.error('Error:', error);
+                    gallery.innerHTML = `<div class="error-message">${error.message}</div>`;
+                }
+            }
+            
+            // عرض الصور في المعرض
+            function displayImages(imagesData) {
                 gallery.innerHTML = '';
                 
-                imageUrls.forEach((url, index) => {
+                Object.entries(imagesData).forEach(([category, url]) => {
                     const item = document.createElement('div');
                     item.className = 'gallery-item';
+                    item.setAttribute('data-category', category);
                     item.innerHTML = `
-                        <img src="${url}" alt="صورة إسلامية ${index + 1}" class="gallery-img" loading="lazy">
+                        <img src="${url}" alt="صورة ${category}" class="gallery-img" loading="lazy">
+                        <div class="category-title">${getCategoryName(category)}</div>
                     `;
                     
                     // عند النقر على الصورة
                     item.addEventListener('click', () => {
-                        modalImage.src = url;
-                        modal.classList.add('active');
-                        document.body.style.overflow = 'hidden';
+                        openModal(url, category);
                     });
                     
                     gallery.appendChild(item);
                 });
+            }
+            
+            // عرض الأقسام
+            function displayCategories(imagesData) {
+                categoriesGallery.innerHTML = '';
+                
+                Object.entries(imagesData).forEach(([category, url]) => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    item.innerHTML = `
+                        <img src="${url}" alt="صورة ${category}" class="gallery-img" loading="lazy">
+                        <div class="category-title">${getCategoryName(category)}</div>
+                    `;
+                    
+                    // عند النقر على الصورة
+                    item.addEventListener('click', () => {
+                        openModal(url, category);
+                    });
+                    
+                    categoriesGallery.appendChild(item);
+                });
+            }
+            
+            // عرض المفضلة
+            function displayFavorites() {
+                favoritesGallery.innerHTML = '';
+                
+                if (Object.keys(favorites).length === 0) {
+                    favoritesGallery.innerHTML = '<div class="error-message">لم تقم بإضافة أي صور إلى المفضلة بعد</div>';
+                    return;
+                }
+                
+                Object.entries(favorites).forEach(([category, url]) => {
+                    const item = document.createElement('div');
+                    item.className = 'gallery-item';
+                    item.innerHTML = `
+                        <img src="${url}" alt="صورة ${category}" class="gallery-img" loading="lazy">
+                        <div class="category-title">${getCategoryName(category)}</div>
+                    `;
+                    
+                    // عند النقر على الصورة
+                    item.addEventListener('click', () => {
+                        openModal(url, category);
+                    });
+                    
+                    favoritesGallery.appendChild(item);
+                });
+            }
+            
+            // فتح نافذة الصورة المنبثقة
+            function openModal(url, category) {
+                modalImage.src = url;
+                currentModalImage = { url, category };
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                
+                // تحديث حالة زر المفضلة
+                if (favorites[category] === url) {
+                    addToFavoritesBtn.innerHTML = '<i class="fas fa-heart" style="color:#e74c3c"></i> إزالة من المفضلة';
+                } else {
+                    addToFavoritesBtn.innerHTML = '<i class="fas fa-heart"></i> إضافة إلى المفضلة';
+                }
             }
             
             // إغلاق النافذة المنبثقة
@@ -459,14 +561,74 @@
                 document.body.style.overflow = 'auto';
             });
             
-            // وضع الصورة كخلفية (وهمي)
+            // وضع الصورة كخلفية
             setWallpaperBtn.addEventListener('click', () => {
-                alert('تم وضع الصورة كخلفية بنجاح!');
+                if (currentModalImage) {
+                    alert(`تم وضع صورة ${getCategoryName(currentModalImage.category)} كخلفية بنجاح!`);
+                }
             });
             
-            // تحميل الصورة (وهمي)
+            // تحميل الصورة
             downloadBtn.addEventListener('click', () => {
-                alert('جاري تحميل الصورة...');
+                if (currentModalImage) {
+                    const link = document.createElement('a');
+                    link.href = currentModalImage.url;
+                    link.download = `islamic-image-${currentModalImage.category}.jpg`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            });
+            
+            // إضافة إلى المفضلة أو إزالتها
+            addToFavoritesBtn.addEventListener('click', () => {
+                if (!currentModalImage) return;
+                
+                const { url, category } = currentModalImage;
+                
+                if (favorites[category] === url) {
+                    delete favorites[category];
+                    addToFavoritesBtn.innerHTML = '<i class="fas fa-heart"></i> إضافة إلى المفضلة';
+                } else {
+                    favorites[category] = url;
+                    addToFavoritesBtn.innerHTML = '<i class="fas fa-heart" style="color:#e74c3c"></i> إزالة من المفضلة';
+                }
+                
+                // حفظ المفضلة في localStorage
+                localStorage.setItem('favorites', JSON.stringify(favorites));
+                
+                // تحديث صفحة المفضلة إذا كانت مفتوحة
+                if (document.getElementById('favoritesPage').classList.contains('active')) {
+                    displayFavorites();
+                }
+            });
+            
+            // تصفية الصور حسب التصنيف
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // إزالة النشاط من جميع الأزرار
+                    categoryButtons.forEach(btn => btn.classList.remove('active'));
+                    // إضافة النشاط للزر المحدد
+                    this.classList.add('active');
+                    
+                    const category = this.getAttribute('data-category');
+                    
+                    if (category === 'all') {
+                        // إظهار جميع الصور
+                        gallery.querySelectorAll('.gallery-item').forEach(item => {
+                            item.style.display = 'block';
+                        });
+                    } else {
+                        // إظهار الصور حسب التصنيف المحدد
+                        gallery.querySelectorAll('.gallery-item').forEach(item => {
+                            if (item.getAttribute('data-category') === category) {
+                                item.style.display = 'block';
+                            } else {
+                                item.style.display = 'none';
+                            }
+                        });
+                    }
+                });
             });
             
             // التنقل بين الصفحات
@@ -490,6 +652,11 @@
                     // إظهار الصفحة المحددة
                     const pageId = this.getAttribute('data-page');
                     document.getElementById(pageId).classList.add('active');
+                    
+                    // إذا كانت صفحة المفضلة، قم بعرضها
+                    if (pageId === 'favoritesPage') {
+                        displayFavorites();
+                    }
                     
                     // إخفاء شريط البحث إذا كان ظاهرًا
                     searchContainer.classList.remove('active');
@@ -524,6 +691,19 @@
                     e.preventDefault();
                 }
             });
+            
+            // الحصول على اسم التصنيف بالعربية
+            function getCategoryName(category) {
+                const names = {
+                    'masajid': 'مساجد',
+                    'patterns': 'زخارف إسلامية',
+                    'various': 'منوع إسلامي',
+                    'events': 'مناسبات إسلامية',
+                    'nature': 'طبيعة'
+                };
+                
+                return names[category] || category;
+            }
             
             // تحميل الصور عند بدء التشغيل
             loadImages();
