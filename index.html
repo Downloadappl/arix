@@ -3,301 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محادثة صوتية مع الذكاء الاصطناعي</title>
+    <title>تطبيق أشور - قريباً على متجر بلي</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap');
+        
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            background-color: #000;
+            color: #fff;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
             padding: 20px;
         }
         
+        .background-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 40%, #003300 0%, transparent 50%),
+                        radial-gradient(circle at 70% 60%, #002200 0%, transparent 50%);
+            opacity: 0.3;
+            z-index: -1;
+        }
+        
         .container {
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 1200px;
             width: 100%;
-            max-width: 500px;
-            padding: 30px;
             text-align: center;
+            padding: 30px;
         }
         
-        h1 {
-            color: #1a2a6c;
-            margin-bottom: 20px;
-            font-size: 28px;
+        .logo {
+            margin-bottom: 40px;
+            animation: fadeIn 1.5s ease-out;
         }
         
-        .description {
-            color: #666;
-            margin-bottom: 25px;
-            line-height: 1.6;
+        .logo h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #00cc66;
+            text-shadow: 0 0 15px rgba(0, 204, 102, 0.7);
+            margin-bottom: 10px;
         }
         
-        .input-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-        
-        textarea {
-            width: 100%;
-            height: 120px;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 16px;
-            resize: none;
-            transition: border-color 0.3s;
-            direction: ltr;
-        }
-        
-        textarea:focus {
-            outline: none;
-            border-color: #6e8efb;
-        }
-        
-        button {
-            background: linear-gradient(to right, #1a2a6c, #b21f1f);
-            color: white;
-            border: none;
-            padding: 14px 25px;
-            border-radius: 50px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.3s, box-shadow 0.3s;
-            font-weight: bold;
+        .logo p {
+            font-size: 1.2rem;
+            color: #ccc;
             margin-top: 10px;
-            width: 100%;
         }
         
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        button:disabled {
-            background: #cccccc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        
-        .conversation {
-            margin-top: 30px;
-            text-align: right;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 1px solid #eee;
-        }
-        
-        .message {
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            border-radius: 10px;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        .user-message {
-            background-color: #e3f2fd;
-            border-right: 4px solid #2196f3;
-            text-align: left;
-            direction: ltr;
-        }
-        
-        .ai-message {
-            background-color: #f1f8e9;
-            border-left: 4px solid #8bc34a;
-            text-align: right;
-        }
-        
-        .audio-container {
-            margin-top: 15px;
+        .screenshots {
             display: flex;
             justify-content: center;
-            align-items: center;
+            gap: 20px;
+            margin-top: 40px;
+            flex-wrap: nowrap; /* حتى يبقون كلهم بسطر واحد */
         }
         
-        .audio-player {
-            width: 100%;
-            margin-top: 10px;
-        }
-        
-        .status {
-            margin-top: 15px;
+        .iphone-frame {
+            width: 160px;   /* أصغر شوي من الأصلي */
+            height: 320px;  /* حتى كلهن يطلعن */
+            background: #000;
+            border-radius: 25px;
             padding: 10px;
-            border-radius: 5px;
-            background-color: #fff3cd;
-            color: #856404;
-            display: none;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 204, 102, 0.4),
+                        inset 0 0 15px rgba(0, 204, 102, 0.1);
+            border: 2px solid #333;
+            transition: all 0.3s ease;
+        }
+        
+        .iphone-frame::before {
+            content: '';
+            position: absolute;
+            top: 6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 4px;
+            background: #333;
+            border-radius: 4px;
+        }
+        
+        .iphone-frame::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: transparent;
+            border: 2px solid #333;
+            box-shadow: inset 0 0 5px rgba(0, 204, 102, 0.2);
+        }
+        
+        .screenshot-content {
+            width: 100%;
+            height: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .screenshot-content img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .app-stores {
+            margin-top: 40px;
+            animation: slideUp 1.5s ease-out;
+        }
+        
+        .app-stores p {
+            font-size: 1rem;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+        
+        .app-store-badge {
+            display: inline-block;
+            background: linear-gradient(145deg, #001a00, #000d00);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #00cc66;
+            font-weight: 700;
+            font-size: 1rem;
+            margin: 0 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5),
+                        0 0 8px rgba(0, 204, 102, 0.3);
+            border: 1px solid #003300;
+        }
+        
+        .social-icons {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .social-icons a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #001a00, #000d00);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00cc66;
+            font-size: 1.2rem;
+            text-decoration: none;
+            border: 1px solid #003300;
+            transition: all 0.3s ease;
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-            display: none;
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        @media (max-width: 600px) {
-            .container {
-                padding: 20px;
-            }
-            
-            h1 {
-                font-size: 24px;
+        @media (max-width: 768px) {
+            .iphone-frame {
+                width: 120px;
+                height: 240px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="background-pattern"></div>
+    
     <div class="container">
-        <h1>محادثة صوتية مع الذكاء الاصطناعي</h1>
-        <p class="description">اكتب رسالتك في الحقل أدناه وسيقوم الذكاء الاصطناعي بالرد عليها بصوت مسموع تلقائيًا</p>
-        
-        <div class="input-group">
-            <textarea id="userInput" placeholder="اكتب رسالتك هنا..." autofocus></textarea>
+        <div class="logo">
+            <h1>أشور</h1>
+            <p>قريباً سيتم إطلاق تطبيقنا على متجر بلي</p>
         </div>
         
-        <button id="sendButton">إرسال والاستماع للرد</button>
-        
-        <div class="status" id="status">
-            <span class="loading" id="loading"></span>
-            <span id="statusText">جاري معالجة طلبك...</span>
+        <div class="screenshots">
+            <div class="iphone-frame">
+                <div class="screenshot-content">
+                    <img src="https://ar-hosting.pages.dev/1757031876150.jpg" alt="لقطة شاشة 1">
+                </div>
+            </div>
+            
+            <div class="iphone-frame">
+                <div class="screenshot-content">
+                    <img src="https://ar-hosting.pages.dev/1757031891128.jpg" alt="لقطة شاشة 2">
+                </div>
+            </div>
+            
+            <div class="iphone-frame">
+                <div class="screenshot-content">
+                    <img src="https://ar-hosting.pages.dev/1757031899463.jpg" alt="لقطة شاشة 3">
+                </div>
+            </div>
         </div>
         
-        <div class="conversation" id="conversation">
-            <!-- سيتم عرض المحادثة هنا -->
+        <div class="app-stores">
+            <p>احصل على التطبيق قريباً من</p>
+            <div class="app-store-badge">
+                <i class="fab fa-apple"></i> متجر بلي
+            </div>
+        </div>
+        
+        <div class="social-icons">
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-snapchat-ghost"></i></a>
+            <a href="#"><i class="fab fa-tiktok"></i></a>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const userInput = document.getElementById('userInput');
-            const sendButton = document.getElementById('sendButton');
-            const conversation = document.getElementById('conversation');
-            const status = document.getElementById('status');
-            const loading = document.getElementById('loading');
-            const statusText = document.getElementById('statusText');
-            
-            // دالة لإضافة رسالة إلى المحادثة
-            function addMessage(text, isUser) {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
-                messageDiv.textContent = text;
-                conversation.appendChild(messageDiv);
-                conversation.scrollTop = conversation.scrollHeight;
-            }
-            
-            // دالة لتشغيل الصوت
-            function playAudio(audioUrl) {
-                const audio = new Audio(audioUrl);
-                audio.play().catch(error => {
-                    console.error('Error playing audio:', error);
-                    statusText.textContent = 'حدث خطأ في تشغيل الصوت. يرجى المحاولة مرة أخرى.';
-                });
-                
-                audio.onended = function() {
-                    sendButton.disabled = false;
-                    status.style.display = 'none';
-                    userInput.value = '';
-                    userInput.focus();
-                };
-            }
-            
-            // دالة لإرسال الرسالة إلى API
-            async function sendMessage() {
-                const message = userInput.value.trim();
-                
-                if (message === '') {
-                    alert('يرجى كتابة رسالة قبل الإرسال');
-                    return;
-                }
-                
-                // إضافة رسالة المستخدم إلى المحادثة
-                addMessage(message, true);
-                
-                // تعطيل الزر وإظهار حالة التحميل
-                sendButton.disabled = true;
-                status.style.display = 'flex';
-                loading.style.display = 'inline-block';
-                statusText.textContent = 'جاري معالجة طلبك...';
-                
-                try {
-                    // استخدام API الجديد
-                    const apiUrl = `https://asta-hosting.x10.mx/vo.php?2=${encodeURIComponent(message)}`;
-                    
-                    // محاولة جلب البيانات من API
-                    const response = await fetch(apiUrl);
-                    
-                    if (!response.ok) {
-                        throw new Error('لم يتمكن الخادم من معالجة الطلب');
-                    }
-                    
-                    // الحصول على بيانات JSON من الاستجابة
-                    const responseData = await response.json();
-                    
-                    // التحقق من وجود رابط الصوت في الاستجابة
-                    if (!responseData.url) {
-                        throw new Error('لم يتم إنشاء رد صوتي');
-                    }
-                    
-                    // تغيير حالة التحميل إلى تشغيل الصوت
-                    statusText.textContent = 'جاري تشغيل الرد الصوتي...';
-                    
-                    // تشغيل الصوت
-                    playAudio(responseData.url);
-                    
-                } catch (error) {
-                    console.error('Error:', error);
-                    statusText.textContent = 'حدث خطأ: ' + error.message;
-                    
-                    // إعادة تمكين الزر بعد ثانيتين في حالة الخطأ
-                    setTimeout(() => {
-                        sendButton.disabled = false;
-                        status.style.display = 'none';
-                    }, 2000);
-                }
-            }
-            
-            // إضافة حدث النقر على زر الإرسال
-            sendButton.addEventListener('click', sendMessage);
-            
-            // إضافة حدث الضغط على Enter في حقل النص
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-        });
-    </script>
 </body>
 </html>
